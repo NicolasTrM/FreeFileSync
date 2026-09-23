@@ -200,7 +200,7 @@ Zstring sanitizeArchiveItemPath(const Zstring& rawPath)
         }
         if (!relPath.empty())
             relPath += FILE_NAME_SEPARATOR;
-        relPath += part;
+        relPath += Zstring(part);
     });
     return unsafe ? Zstring() : relPath;
 }
@@ -387,7 +387,7 @@ ZipIndex parseZipArchive(const Zstring& archivePath) //throw SysError
         if (unicodeName)
             itemName = *unicodeName;
         else if ((entry.flags & ZIP_FLAG_UTF8) || isValidUtf(rawName))
-            itemName = rawName;
+            itemName = Zstring(rawName.c_str(), rawName.size());
         else
             itemName = decodeCp437(rawName);
 

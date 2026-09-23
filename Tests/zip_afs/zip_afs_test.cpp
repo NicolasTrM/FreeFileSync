@@ -67,7 +67,7 @@ public:
     }
 
 private:
-    std::string relPath(const Zstring& itemName) const { return parentRelPath_.empty() ? itemName : parentRelPath_ + '/' + itemName; }
+    std::string relPath(const Zstring& itemName) const { return parentRelPath_.empty() ? utfTo<std::string>(itemName) : parentRelPath_ + '/' + utfTo<std::string>(itemName); }
 
     std::map<std::string, ItemDetails>& items_;
     const std::string parentRelPath_;
@@ -143,7 +143,7 @@ void compareWithReference(const Zstring& archivePath, const fs::path& refRoot)
 
         if (!ref.isFolder)
         {
-            const AbstractPath filePath = AFS::appendRelPath(rootPath, relPath);
+            const AbstractPath filePath = AFS::appendRelPath(rootPath, utfTo<Zstring>(relPath));
             check(AFS::getItemType(filePath) == AFS::ItemType::file, "getItemType() != file: " + relPath);
             check(item.fileSize == ref.fileSize, "file size mismatch: " + relPath);
             //FFS default tolerance is 2 seconds (DOS time stamp precision)
@@ -163,8 +163,8 @@ void compareWithReference(const Zstring& archivePath, const fs::path& refRoot)
     for (const auto& [relPath, ref] : refItems)
         if (ref.isFolder)
         {
-            const AbstractPath subPath = createItemPathZip(Zstr("zip:") + archivePath + Zstr('|') + relPath);
-            check(AFS::getInitPathPhrase(subPath) == Zstr("zip:") + archivePath + Zstr('|') + relPath, "path phrase round trip: " + relPath);
+            const AbstractPath subPath = createItemPathZip(Zstr("zip:") + archivePath + Zstr('|') + utfTo<Zstring>(relPath));
+            check(AFS::getInitPathPhrase(subPath) == Zstr("zip:") + archivePath + Zstr('|') + utfTo<Zstring>(relPath), "path phrase round trip: " + relPath);
             size_t expectedCount = 0;
             for (const auto& [relPath2, ref2] : refItems)
                 if (relPath2.starts_with(relPath + '/'))
@@ -188,7 +188,7 @@ void compareWithReference(const Zstring& archivePath, const fs::path& refRoot)
     }
     catch (const FileError&) {}
 
-    std::cout << items.size() << " items checked in " << archivePath << '\n';
+    std::cout << items.size() << " items checked in " << utfTo<std::string>(archivePath) << '\n';
 }
 }
 
