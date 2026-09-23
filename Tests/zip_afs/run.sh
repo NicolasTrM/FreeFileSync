@@ -9,12 +9,12 @@ CXX="${CXX:-g++}"
 
 echo "== build"
 "$CXX" -std=c++23 -O1 -g -pthread -Wall -Wfatal-errors -Wshadow -Wno-unused-function -Wno-maybe-uninitialized \
-    -DWXINTL_NO_GETTEXT_MACRO -I"$ROOT" -I"$ROOT/zenXml" -include "zen/i18n.h" \
+    -DNDEBUG -DWXINTL_NO_GETTEXT_MACRO $(pkg-config --cflags glib-2.0) -I"$ROOT" -I"$ROOT/zenXml" -include "zen/i18n.h" \
     "$ROOT/Tests/zip_afs/zip_afs_test.cpp" \
     "$ROOT/FreeFileSync/Source/afs/zip.cpp" \
     "$ROOT/FreeFileSync/Source/afs/abstract.cpp" \
     "$ROOT"/zen/{zstring,file_path,resolve_path,file_access,file_io,file_traverser,sys_error,sys_info,sys_version,thread,format_unit,legacy_compiler,process_exec}.cpp \
-    -lz -o "$WORK/zip_afs_test"
+    $(pkg-config --libs glib-2.0) -lz -o "$WORK/zip_afs_test"
 
 echo "== fixtures"
 REF="$WORK/ref"
