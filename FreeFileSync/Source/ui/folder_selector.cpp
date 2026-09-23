@@ -15,6 +15,7 @@
 #include "../afs/concrete.h"
 #include "../afs/native.h"
 #include "../afs/gdrive.h"
+#include "../afs/zip.h"
 
     #include <wx/dirdlg.h>
 
@@ -162,8 +163,14 @@ void FolderSelector::onItemPathDropped(FileDropEvent& event)
             try
             {
                 if (AFS::getItemType(itemPath) == AFS::ItemType::file) //throw FileError
+                {
+                    //ZIP archive: sync its content (read-only)
+                    if (!getNativeItemPath(itemPath).empty() && endsWithAsciiNoCase(shellItemPath, Zstr(".zip")))
+                        return AFS::getInitPathPhrase(createItemPathZip(Zstr("zip:") + getNativeItemPath(itemPath)));
+
                     if (const std::optional<AbstractPath> parentPath = AFS::getParentPath(itemPath))
                         return AFS::getInitPathPhrase(*parentPath);
+                }
             }
             catch (FileError&) {} //e.g. good for inactive mapped network shares, not so nice for C:\pagefile.sys
             //make sure FFS-specific explicit MTP-syntax is applied!

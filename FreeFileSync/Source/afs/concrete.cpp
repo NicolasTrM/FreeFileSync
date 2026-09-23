@@ -9,6 +9,7 @@
 #include "ftp.h"
 #include "sftp.h"
 #include "gdrive.h"
+#include "zip.h"
 
 using namespace fff;
 using namespace zen;
@@ -17,6 +18,7 @@ using namespace zen;
 void fff::initAfs(const AfsConfig& cfg)
 {
     ftpInit();
+    zipInit();
     sftpInit();
     gdriveInit(appendPath(cfg.configDirPath,   Zstr("GoogleDrive")),
                appendPath(cfg.resourceDirPath, Zstr("cacert.pem")));
@@ -27,6 +29,7 @@ void fff::teardownAfs()
 {
     gdriveTeardown();
     sftpTeardown();
+    zipTeardown();
     ftpTeardown();
 }
 
@@ -52,6 +55,9 @@ AbstractPath fff::createAbstractPath(const Zstring& itemPathPhrase) //noexcept
 
     if (acceptsItemPathPhraseGdrive(itemPathPhrase)) //noexcept
         return createItemPathGdrive(itemPathPhrase); //noexcept
+
+    if (acceptsItemPathPhraseZip(itemPathPhrase)) //noexcept
+        return createItemPathZip(itemPathPhrase); //noexcept
 
 
     //no idea? => native!
